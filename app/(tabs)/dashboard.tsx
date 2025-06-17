@@ -117,7 +117,7 @@ export default function DashboardScreen() {
     return Object.entries(categories).map(([name, amount]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       amount: amount as number,
-      color: `hsl(₹{Math.random() * 360}, 70%, 50%)`,
+      color: `hsl(${Math.random() * 360}, 70%, 50%)`,
       legendFontColor: colors.text,
       legendFontSize: 12,
     }));
@@ -130,8 +130,8 @@ export default function DashboardScreen() {
     backgroundGradientFrom: colors.surface,
     backgroundGradientTo: colors.surface,
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(59, 130, 246, ₹{opacity})`,
-    labelColor: (opacity = 1) => colors.text,
+    color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+    labelColor: () => colors.text,
     style: {
       borderRadius: 16,
     },
@@ -168,7 +168,6 @@ export default function DashboardScreen() {
     },
     periodSelector: {
       flexDirection: 'row',
-      // marginBottom: 20,
     },
     periodButton: {
       backgroundColor: colors.surface,
@@ -194,6 +193,7 @@ export default function DashboardScreen() {
     content: {
       flex: 1,
       padding: 20,
+      paddingBottom: 90,
     },
     statsContainer: {
       flexDirection: 'row',
@@ -237,7 +237,6 @@ export default function DashboardScreen() {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      // marginBottom: 16,
     },
     chartTitle: {
       fontSize: 18,
@@ -313,7 +312,7 @@ export default function DashboardScreen() {
               datasets: [
                 {
                   data: expenseData.slice(-7),
-                  color: (opacity = 1) => `rgba(239, 68, 68, ₹{opacity})`,
+                  color: (opacity = 1) => `rgba(239, 68, 68, ${opacity})`,
                 },
               ],
             }}
