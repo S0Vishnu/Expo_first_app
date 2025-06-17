@@ -121,6 +121,7 @@ export const homeStyles = (colors: any) =>
       fontSize: 12,
       fontFamily: 'Inter-Medium',
       color: colors.primary,
+      marginLeft: 4,
     },
     modal: {
       flex: 1,

@@ -23,22 +23,26 @@ import {
   Smartphone,
 } from 'lucide-react-native';
 import { profileStyles } from '../../styles/profile';
+import CustomAlert from '../../components/AlertModel';
 
 export default function ProfileScreen() {
   const { colors, theme, setTheme } = useTheme();
   const styles = profileStyles(colors);
-  const { profiles, activeProfile, addProfile, removeProfile, switchProfile } =
-    useData();
+  const { profiles, addProfile, removeProfile, switchProfile } = useData();
 
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [newProfile, setNewProfile] = useState({
     name: '',
+    password: '',
     avatar: '👤',
     isActive: false,
   });
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
+  const [toDelete, setToDelete] = useState<string | null>(null);
 
   const avatars = [
     '👤',
@@ -65,42 +69,45 @@ export default function ProfileScreen() {
       Alert.alert('Error', 'Please enter a profile name');
       return;
     }
-
-    addProfile(newProfile);
-    setNewProfile({
-      name: '',
-      avatar: '👤',
-      isActive: false,
-    });
-    setProfileModalVisible(false);
-  };
-
-  const handleRemoveProfile = (id: string) => {
-    if (profiles.length <= 1) {
-      Alert.alert('Error', 'Cannot delete the last profile');
+    if (!newProfile.password.trim()) {
+      Alert.alert('Error', 'Please enter a valid password');
       return;
     }
 
-    Alert.alert(
-      'Delete Profile',
-      'Are you sure you want to delete this profile?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => removeProfile(id),
-        },
-      ]
-    );
+    addProfile(newProfile);
+    resetProfileForm();
+  };
+
+  const handleRemoveProfile = (id: string) => {
+    setToDelete(id);
+    setDeleteAlertVisible(true);
+  };
+
+  const confirmDelete = () => {
+    if (toDelete) {
+      removeProfile(toDelete);
+      setToDelete(null);
+    }
+    setDeleteAlertVisible(false);
+  };
+
+  const cancelDelete = () => {
+    setToDelete(null);
+    setDeleteAlertVisible(false);
   };
 
   const handleSwitchProfile = (id: string) => {
     switchProfile(id);
   };
 
+  const resetProfileForm = () => {
+    setNewProfile({ name: '', password: '', avatar: '👤', isActive: false });
+    setProfileModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Profile</Text>
         <TouchableOpacity
@@ -111,10 +118,11 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Profiles Section */}
         <View style={styles.profilesContainer}>
           <Text style={styles.sectionTitle}>Profiles</Text>
-
           {profiles.map((profile) => (
             <TouchableOpacity
               key={profile.id}
@@ -133,15 +141,7 @@ export default function ProfileScreen() {
                   )}
                 </View>
               </View>
-
               <View style={styles.profileActions}>
-                {profile.isActive && (
-                  <View
-                    style={[styles.actionButton, styles.activeActionButton]}
-                  >
-                    <Check size={16} color="#FFFFFF" />
-                  </View>
-                )}
                 {profiles.length > 1 && (
                   <TouchableOpacity
                     style={styles.actionButton}
@@ -153,7 +153,6 @@ export default function ProfileScreen() {
               </View>
             </TouchableOpacity>
           ))}
-
           <TouchableOpacity
             style={styles.addProfileButton}
             onPress={() => setProfileModalVisible(true)}
@@ -163,9 +162,9 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Theme Section */}
         <View style={styles.themeContainer}>
           <Text style={styles.sectionTitle}>Theme</Text>
-
           {themes.map((themeOption) => {
             const IconComponent = themeOption.icon;
             return (
@@ -189,14 +188,12 @@ export default function ProfileScreen() {
           })}
         </View>
 
+        {/* Settings Section */}
         <View style={styles.settingsContainer}>
           <Text style={styles.sectionTitle}>Settings</Text>
-
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <View style={styles.settingIcon}>
-                <Bell size={20} color={colors.text} />
-              </View>
+              <Bell size={20} color={colors.text} />
               <Text style={styles.settingText}>Notifications</Text>
             </View>
             <Switch
@@ -208,13 +205,10 @@ export default function ProfileScreen() {
               }
             />
           </View>
-
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <View style={styles.settingIcon}>
-                <Settings size={20} color={colors.text} />
-              </View>
-              <Text style={styles.settingText}>Notification Sound</Text>
+              <Settings size={20} color={colors.text} />
+              <Text style={styles.settingText}>Sound Effects</Text>
             </View>
             <Switch
               value={soundEnabled}
@@ -226,26 +220,40 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
+      {/* Modals */}
       <Modal
         visible={profileModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setProfileModalVisible(false)}
+        onRequestClose={resetProfileForm}
       >
         <View style={styles.modal}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add Profile</Text>
-
             <TextInput
               style={styles.input}
               placeholder="Profile name"
               placeholderTextColor={colors.textSecondary}
               value={newProfile.name}
+              importantForAccessibility="yes"
               onChangeText={(text) =>
                 setNewProfile({ ...newProfile, name: text })
               }
             />
-
+            <Text style={styles.modalTitle}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="•••••••"
+              placeholderTextColor={colors.textSecondary}
+              value={newProfile.password}
+              importantForAccessibility="yes"
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={(text) =>
+                setNewProfile({ ...newProfile, password: text })
+              }
+            />
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarLabel}>Choose Avatar</Text>
               <View style={styles.avatarGrid}>
@@ -263,15 +271,13 @@ export default function ProfileScreen() {
                 ))}
               </View>
             </View>
-
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.buttonSecondary]}
-                onPress={() => setProfileModalVisible(false)}
+                onPress={resetProfileForm}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={handleAddProfile}
@@ -292,39 +298,6 @@ export default function ProfileScreen() {
         <View style={styles.modal}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Settings</Text>
-
-            <View style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <View style={styles.settingIcon}>
-                  <Bell size={20} color={colors.text} />
-                </View>
-                <Text style={styles.settingText}>Push Notifications</Text>
-              </View>
-              <Switch
-                value={notificationsEnabled}
-                onValueChange={setNotificationsEnabled}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor={
-                  notificationsEnabled ? '#FFFFFF' : colors.textSecondary
-                }
-              />
-            </View>
-
-            <View style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <View style={styles.settingIcon}>
-                  <Settings size={20} color={colors.text} />
-                </View>
-                <Text style={styles.settingText}>Sound Effects</Text>
-              </View>
-              <Switch
-                value={soundEnabled}
-                onValueChange={setSoundEnabled}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor={soundEnabled ? '#FFFFFF' : colors.textSecondary}
-              />
-            </View>
-
             <TouchableOpacity
               style={styles.button}
               onPress={() => setSettingsModalVisible(false)}
@@ -334,6 +307,16 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+
+      <CustomAlert
+        visible={deleteAlertVisible}
+        title="Delete Profile"
+        message="Are you sure you want to delete this profile?"
+        onCancel={cancelDelete}
+        onConfirm={confirmDelete}
+        cancelText="No"
+        confirmText="Yes"
+      />
     </SafeAreaView>
   );
 }

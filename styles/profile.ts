@@ -240,7 +240,7 @@ export const profileStyles = (colors: any) =>
       marginHorizontal: 4,
     },
     buttonSecondary: {
-      backgroundColor: colors.textSecondary,
+      backgroundColor: colors.background,
     },
     buttonText: {
       fontSize: 16,

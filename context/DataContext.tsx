@@ -44,7 +44,7 @@ export interface Reminder {
   title: string;
   content: string;
   time: Date;
-  repeat: 'day' | 'week' | 'hour' | 'minute' | 'time' | undefined;
+  repeat: 'day' | 'week' | 'hour' | 'minute' | 'time' | undefined | any;
   isActive: boolean;
   profileId: string;
   selectedDays?: number[]; // Add this line
