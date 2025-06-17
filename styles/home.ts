@@ -101,6 +101,7 @@ export const homeStyles = (colors: any) =>
       borderRadius: 12,
       padding: 16,
       marginBottom: 8,
+      marginTop: 8,
       borderWidth: 1,
       borderColor: colors.border,
     },
@@ -237,5 +238,34 @@ export const homeStyles = (colors: any) =>
     },
     dayButtonTextActive: {
       color: colors.textInverse,
+    },
+    reminderHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    reminderActions: {
+      flexDirection: 'row',
+    },
+    reminderActionButton: {
+      marginLeft: 10,
+    },
+    reminderMeta: {
+      flexDirection: 'row',
+      marginTop: 8,
+    },
+    reminderMetaItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    reminderRepeat: {
+      marginLeft: 4,
+      color: colors.textSecondary,
+    },
+    textArea: {
+      height: 100,
+      textAlignVertical: 'top',
     },
   });

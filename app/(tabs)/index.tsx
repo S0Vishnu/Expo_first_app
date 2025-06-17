@@ -7,13 +7,27 @@ import {
   Modal,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { useData } from '../../context/DataContext';
-import { Flame, SquareCheck as CheckSquare, Plus } from 'lucide-react-native';
+import {
+  Flame,
+  SquareCheck as CheckSquare,
+  Plus,
+  Clock,
+  Trash2,
+  Edit2,
+  Bell,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { homeStyles } from '../../styles/home';
 import RefreshGestureContext from '../../context/RefreshContext';
+import CustomAlert from '../../components/AlertModel';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -24,10 +38,19 @@ export default function HomeScreen() {
     reminders,
     dailyStreak,
     addReminder,
+    updateReminder,
+    deleteReminder,
   } = useData();
 
   const styles = homeStyles(colors);
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showRepeatOptions, setShowRepeatOptions] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<null | any>(null);
+
+  const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
+  const [reminderToDelete, setReminderToDelete] = useState<string | null>(null);
+
   const [newReminder, setNewReminder] = useState({
     title: '',
     content: '',
@@ -35,6 +58,17 @@ export default function HomeScreen() {
     repeat: 'none' as 'none' | 'daily' | 'weekly' | 'monthly',
     isActive: true,
   });
+
+  // Days of week for repeat options
+  const daysOfWeek = [
+    { id: 0, name: 'Sun' },
+    { id: 1, name: 'Mon' },
+    { id: 2, name: 'Tue' },
+    { id: 3, name: 'Wed' },
+    { id: 4, name: 'Thu' },
+    { id: 5, name: 'Fri' },
+    { id: 6, name: 'Sat' },
+  ];
 
   const completedTodos = todos.filter((todo) => todo.completed).length;
   const totalTodos = todos.length;
@@ -55,11 +89,54 @@ export default function HomeScreen() {
       return;
     }
 
-    addReminder({
-      ...newReminder,
-      profileId: activeProfile?.id || '1',
-    });
+    if (editingReminder) {
+      // Update existing reminder
+      updateReminder(editingReminder.id, {
+        ...newReminder,
+        profileId: activeProfile?.id || '1',
+      });
+    } else {
+      // Add new reminder
+      addReminder({
+        ...newReminder,
+        profileId: activeProfile?.id || '1',
+      });
+    }
 
+    resetReminderForm();
+  };
+
+  const handleEditReminder = (reminder: any) => {
+    setEditingReminder(reminder);
+    setNewReminder({
+      title: reminder.title,
+      content: reminder.content,
+      time: new Date(reminder.time),
+      repeat: reminder.repeat,
+      isActive: reminder.isActive,
+    });
+    setReminderModalVisible(true);
+  };
+
+  const handleDeleteReminder = (id: string) => {
+    setReminderToDelete(id);
+    setDeleteAlertVisible(true);
+  };
+
+  const confirmDelete = () => {
+    if (reminderToDelete) {
+      deleteReminder(reminderToDelete);
+    }
+    setDeleteAlertVisible(false);
+    setReminderToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteAlertVisible(false);
+    setReminderToDelete(null);
+  };
+
+  const resetReminderForm = () => {
     setNewReminder({
       title: '',
       content: '',
@@ -67,7 +144,36 @@ export default function HomeScreen() {
       repeat: 'none',
       isActive: true,
     });
+    setEditingReminder(null);
     setReminderModalVisible(false);
+    setShowTimePicker(false);
+    setShowRepeatOptions(false);
+  };
+
+  const handleTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(Platform.OS === 'ios');
+    if (selectedTime) {
+      setNewReminder({ ...newReminder, time: selectedTime });
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatRepeatText = () => {
+    switch (newReminder.repeat) {
+      case 'none':
+        return 'Does not repeat';
+      case 'daily':
+        return 'Daily';
+      case 'weekly':
+        return 'Weekly';
+      case 'monthly':
+        return 'Monthly';
+      default:
+        return '';
+    }
   };
 
   return (
@@ -122,29 +228,64 @@ export default function HomeScreen() {
               .slice(0, 3)
               .map((reminder) => (
                 <View key={reminder.id} style={styles.reminderItem}>
-                  <Text style={styles.reminderTitle}>{reminder.title}</Text>
-                  <Text style={styles.reminderContent}>{reminder.content}</Text>
-                  <Text style={styles.reminderTime}>
-                    {reminder.time.toLocaleTimeString()} • {reminder.repeat}
-                  </Text>
+                  <View style={styles.reminderHeader}>
+                    <Text style={styles.reminderTitle}>{reminder.title}</Text>
+                    <View style={styles.reminderActions}>
+                      <TouchableOpacity
+                        onPress={() => handleEditReminder(reminder)}
+                        style={styles.reminderActionButton}
+                      >
+                        <Edit2 size={16} color={colors.textSecondary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleDeleteReminder(reminder.id)}
+                        style={styles.reminderActionButton}
+                      >
+                        <Trash2 size={16} color={colors.error} />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  {reminder.content && (
+                    <Text style={styles.reminderContent}>
+                      {reminder.content}
+                    </Text>
+                  )}
+                  <View style={styles.reminderMeta}>
+                    <View style={styles.reminderMetaItem}>
+                      <Clock size={14} color={colors.textSecondary} />
+                      <Text style={styles.reminderTime}>
+                        {formatTime(new Date(reminder.time))}
+                      </Text>
+                    </View>
+                    <View style={styles.reminderMetaItem}>
+                      <Bell size={14} color={colors.textSecondary} />
+                      <Text style={styles.reminderRepeat}>
+                        {formatRepeatText()}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               ))}
           </View>
         </ScrollView>
       </RefreshGestureContext>
+
+      {/* Reminder Modal */}
       <Modal
         visible={reminderModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setReminderModalVisible(false)}
+        onRequestClose={resetReminderForm}
       >
         <View style={styles.modal}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Reminder</Text>
+            <Text style={styles.modalTitle}>
+              {editingReminder ? 'Edit Reminder' : 'Add Reminder'}
+            </Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Reminder title"
+              placeholder="Reminder title*"
               placeholderTextColor={colors.textSecondary}
               value={newReminder.title}
               onChangeText={(text) =>
@@ -153,7 +294,7 @@ export default function HomeScreen() {
             />
 
             <TextInput
-              style={styles.input}
+              style={[styles.input]}
               placeholder="Content (optional)"
               placeholderTextColor={colors.textSecondary}
               value={newReminder.content}
@@ -164,10 +305,130 @@ export default function HomeScreen() {
               numberOfLines={3}
             />
 
+            {/* Time Selection */}
+            <TouchableOpacity
+              style={styles.timeInput}
+              onPress={() => setShowTimePicker(true)}
+            >
+              <Clock size={20} color={colors.textSecondary} />
+              <Text style={styles.timeInputText}>
+                {formatTime(newReminder.time)}
+              </Text>
+            </TouchableOpacity>
+
+            {showTimePicker && (
+              <DateTimePicker
+                value={newReminder.time}
+                mode="time"
+                display="spinner"
+                onChange={handleTimeChange}
+              />
+            )}
+
+            {/* Repeat Options */}
+            <TouchableOpacity
+              style={styles.repeatInput}
+              onPress={() => setShowRepeatOptions(!showRepeatOptions)}
+            >
+              <Calendar size={20} color={colors.textSecondary} />
+              <Text style={styles.repeatInputText}>{formatRepeatText()}</Text>
+              {showRepeatOptions ? (
+                <ChevronUp size={20} color={colors.textSecondary} />
+              ) : (
+                <ChevronDown size={20} color={colors.textSecondary} />
+              )}
+            </TouchableOpacity>
+
+            {showRepeatOptions && (
+              <View style={styles.repeatOptions}>
+                <TouchableOpacity
+                  style={[
+                    styles.repeatOption,
+                    newReminder.repeat === 'none' && styles.repeatOptionActive,
+                  ]}
+                  onPress={() =>
+                    setNewReminder({ ...newReminder, repeat: 'none' })
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.repeatOptionText,
+                      newReminder.repeat === 'none' &&
+                        styles.repeatOptionTextActive,
+                    ]}
+                  >
+                    Does not repeat
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.repeatOption,
+                    newReminder.repeat === 'daily' && styles.repeatOptionActive,
+                  ]}
+                  onPress={() =>
+                    setNewReminder({ ...newReminder, repeat: 'daily' })
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.repeatOptionText,
+                      newReminder.repeat === 'daily' &&
+                        styles.repeatOptionTextActive,
+                    ]}
+                  >
+                    Daily
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.repeatOption,
+                    newReminder.repeat === 'weekly' &&
+                      styles.repeatOptionActive,
+                  ]}
+                  onPress={() =>
+                    setNewReminder({ ...newReminder, repeat: 'weekly' })
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.repeatOptionText,
+                      newReminder.repeat === 'weekly' &&
+                        styles.repeatOptionTextActive,
+                    ]}
+                  >
+                    Weekly
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.repeatOption,
+                    newReminder.repeat === 'monthly' &&
+                      styles.repeatOptionActive,
+                  ]}
+                  onPress={() =>
+                    setNewReminder({ ...newReminder, repeat: 'monthly' })
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.repeatOptionText,
+                      newReminder.repeat === 'monthly' &&
+                        styles.repeatOptionTextActive,
+                    ]}
+                  >
+                    Monthly
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.buttonSecondary]}
-                onPress={() => setReminderModalVisible(false)}
+                onPress={resetReminderForm}
               >
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
@@ -175,13 +436,41 @@ export default function HomeScreen() {
               <TouchableOpacity
                 style={styles.button}
                 onPress={handleAddReminder}
+                disabled={!newReminder.title.trim()}
               >
-                <Text style={styles.buttonText}>Add</Text>
+                <Text style={styles.buttonText}>
+                  {editingReminder ? 'Update' : 'Add'} Reminder
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+      <CustomAlert
+        visible={deleteAlertVisible}
+        title="Delete Reminder"
+        message="Are you sure you want to delete this reminder?"
+        onCancel={cancelDelete}
+        onConfirm={confirmDelete}
+        cancelText="No"
+        confirmText="Yes"
+      />
     </SafeAreaView>
   );
+}
+
+// Helper function to format repeat text for display
+function formatRepeatText(repeat: string) {
+  switch (repeat) {
+    case 'none':
+      return 'Does not repeat';
+    case 'daily':
+      return 'Daily';
+    case 'weekly':
+      return 'Weekly';
+    case 'monthly':
+      return 'Monthly';
+    default:
+      return '';
+  }
 }
