@@ -1,8 +1,8 @@
 {
-  "name": "lasy-m-app",
+  "name": "lasy-m-app-2",
   "license": "0BSD",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -10,16 +10,22 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.1",
+    "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.3.15",
     "@react-navigation/native": "^7.1.11",
     "expo": "~53.0.11",
     "expo-linear-gradient": "^14.1.5",
+    "expo-router": "^5.1.0",
+    "expo-splash-screen": "^0.30.9",
     "expo-status-bar": "~2.2.3",
     "firebase": "^11.9.1",
+    "lucide-react-native": "^0.516.0",
     "react": "19.0.0",
     "react-native": "0.79.3",
+    "react-native-chart-kit": "^6.12.0",
     "react-native-circular-progress-indicator": "^4.4.2",
     "react-native-gesture-handler": "^2.26.0",
     "react-native-reanimated": "^3.18.0",
