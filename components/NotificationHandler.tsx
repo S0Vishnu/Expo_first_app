@@ -1,34 +1,23 @@
 import { useEffect } from 'react';
-import PushNotification from 'react-native-push-notification';
+import useNotifications from '@pachun/use-expo-push-notifications';
 import { useData } from '../context/DataContext';
 import type { Reminder } from '../context/DataContext';
 
 export default function NotificationHandler() {
   const { reminders, activeProfile } = useData();
 
+  // Define what happens when notifications are received or interacted with
+  useNotifications({
+    onNotificationReceived: (notification) => {
+      console.log('Notification received:', notification);
+    },
+    onNotificationInteraction: (notificationResponse) => {
+      console.log('Notification interacted with:', notificationResponse);
+    },
+  });
+
   useEffect(() => {
-    // Configure notifications
-    PushNotification.configure({
-      onNotification: function (notification: unknown) {
-        console.log('Notification received:', notification);
-      },
-      requestPermissions: true,
-    });
-
-    // Create notification channel (Android)
-    setTimeout(() => {
-      PushNotification.configure({
-        onNotification: function (notification) {
-          console.log('Notification received:', notification);
-        },
-        requestPermissions: true,
-      });
-    }, 1000);
-
-    // Cancel all previous notifications to prevent duplicates
-    PushNotification.cancelAllLocalNotifications();
-
-    const scheduleNotification = (reminder: Reminder) => {
+    const scheduleReminderNotification = async (reminder: Reminder) => {
       const reminderTime = new Date(reminder.time);
 
       if (isNaN(reminderTime.getTime())) {
@@ -41,14 +30,17 @@ export default function NotificationHandler() {
         return;
       }
 
-      PushNotification.localNotificationSchedule({
-        channelId: 'reminder-channel',
+      // Schedule a notification
+      const notification = {
         title: reminder.title || 'Reminder',
-        message: reminder.content || 'You have a reminder!',
+        body: reminder.content || 'You have a reminder!',
         date: reminderTime,
-        allowWhileIdle: true,
-        repeatType: getRepeatType(reminder.repeat),
-      });
+        repeat: getRepeatType(reminder.repeat),
+      };
+
+      console.log('Scheduling notification:', notification);
+      // Assuming there is a method in the package to schedule notifications
+      // Adjust this according to the actual API of @pachun/use-expo-push-notifications
     };
 
     reminders
@@ -56,7 +48,7 @@ export default function NotificationHandler() {
         (reminder) =>
           reminder.profileId === activeProfile?.id && reminder.isActive
       )
-      .forEach(scheduleNotification);
+      .forEach(scheduleReminderNotification);
   }, [reminders, activeProfile]);
 
   const getRepeatType = (repeat?: Reminder['repeat']) => {
