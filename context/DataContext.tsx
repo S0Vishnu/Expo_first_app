@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   collection,
   getDocs,
@@ -7,14 +7,15 @@ import {
   deleteDoc,
   doc,
   Timestamp,
-} from "firebase/firestore";
-import { db } from "../config/firebaseConfig";
+} from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
 
 export interface Profile {
   id: string;
   name: string;
   avatar: string;
   isActive: boolean;
+  password?: string;
 }
 
 export interface Todo {
@@ -24,13 +25,13 @@ export interface Todo {
   completed: boolean;
   category: string;
   dueDate?: Date;
-  priority: "low" | "medium" | "high";
+  priority: 'low' | 'medium' | 'high';
   createdAt: Date;
 }
 
 export interface Transaction {
   id: string;
-  type: "income" | "expense";
+  type: 'income' | 'expense';
   amount: number;
   category: string;
   description: string;
@@ -43,7 +44,7 @@ export interface Reminder {
   title: string;
   content: string;
   time: Date;
-  repeat: "none" | "daily" | "weekly" | "monthly";
+  repeat: 'day' | 'week' | 'hour' | 'minute' | 'time' | undefined;
   isActive: boolean;
   profileId: string;
   selectedDays?: number[]; // Add this line
@@ -56,19 +57,20 @@ interface DataContextType {
   transactions: Transaction[];
   reminders: Reminder[];
   dailyStreak: number;
-  addProfile: (profile: Omit<Profile, "id">) => void;
+  addProfile: (profile: Omit<Profile, 'id'>) => void;
   removeProfile: (id: string) => void;
   switchProfile: (id: string) => void;
-  addTodo: (todo: Omit<Todo, "id" | "createdAt">) => void;
+  addTodo: (todo: Omit<Todo, 'id' | 'createdAt'>) => void;
   updateTodo: (id: string, updates: Partial<Todo>) => void;
   deleteTodo: (id: string) => void;
-  addTransaction: (transaction: Omit<Transaction, "id">) => void;
+  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
-  addReminder: (reminder: Omit<Reminder, "id">) => void;
+  addReminder: (reminder: Omit<Reminder, 'id'>) => void;
   updateReminder: (id: string, updates: Partial<Reminder>) => void;
   deleteReminder: (id: string) => void;
   updateDailyStreak: () => void;
   loadData: () => void;
+  isLoading: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -82,31 +84,46 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [dailyStreak, setDailyStreak] = useState(0);
+  const [isLoading, setLoading] = useState(true);
+  const [loadCount, setLoadCount] = useState(0);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    // Simulate data fetching
+    const fetchData = async () => {
+      loadData();
+      // Simulate API calls or asynchronous tasks
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Example: 2-second delay
+      if (loadCount === 2) {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [loadCount]);
 
   const convertDate = (date: any): Date | undefined =>
     date instanceof Timestamp ? date.toDate() : date;
 
   const loadData = async () => {
+    setLoadCount(0);
     try {
       // Load profiles
-      const profilesSnapshot = await getDocs(collection(db, "profiles-v1"));
+      const profilesSnapshot = await getDocs(collection(db, 'profiles-v1'));
       const profilesData = profilesSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Profile[];
       setProfiles(profilesData);
-      setActiveProfile(profilesData.find((p) => p.isActive) || profilesData[0] || null);
+      setActiveProfile(
+        profilesData.find((p) => p.isActive) || profilesData[0] || null
+      );
+      setLoadCount((prev) => prev + 1);
     } catch (error) {
-      console.error("Error loading profiles:", error);
+      console.error('Error loading profiles:', error);
     }
 
     try {
       // Load todos
-      const todosSnapshot = await getDocs(collection(db, "todos-v1"));
+      const todosSnapshot = await getDocs(collection(db, 'todos-v1'));
       const todosData = todosSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -114,34 +131,39 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         dueDate: convertDate(doc.data().dueDate),
       })) as Todo[];
       setTodos(todosData);
+      setLoadCount((prev) => prev + 1);
     } catch (error) {
-      console.error("Error loading todos:", error);
+      console.error('Error loading todos:', error);
     }
 
     try {
       // Load transactions
-      const transactionsSnapshot = await getDocs(collection(db, "transactions-v1"));
+      const transactionsSnapshot = await getDocs(
+        collection(db, 'transactions-v1')
+      );
       const transactionsData = transactionsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         date: convertDate(doc.data().date),
       })) as Transaction[];
       setTransactions(transactionsData);
+      setLoadCount((prev) => prev + 1);
     } catch (error) {
-      console.error("Error loading transactions:", error);
+      console.error('Error loading transactions:', error);
     }
 
     try {
       // Load reminders
-      const remindersSnapshot = await getDocs(collection(db, "reminders-v1"));
+      const remindersSnapshot = await getDocs(collection(db, 'reminders-v1'));
       const remindersData = remindersSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         time: convertDate(doc.data().time),
       })) as Reminder[];
       setReminders(remindersData);
+      setLoadCount((prev) => prev + 1);
     } catch (error) {
-      console.error("Error loading reminders:", error);
+      console.error('Error loading reminders:', error);
     }
   };
 
@@ -173,15 +195,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const addProfile = (profile: Omit<Profile, "id">) => {
+  const addProfile = (profile: Omit<Profile, 'id'>) => {
     const newProfile = { ...profile, isActive: false };
-    addData("profiles-v1", newProfile).then((id) => {
+    addData('profiles-v1', newProfile).then((id) => {
       if (id) setProfiles((prev) => [...prev, { id, ...newProfile }]);
     });
   };
 
   const removeProfile = (id: string) => {
-    deleteData("profiles-v1", id).then(() => {
+    deleteData('profiles-v1', id).then(() => {
       setProfiles((prev) => prev.filter((p) => p.id !== id));
       if (activeProfile?.id === id) setActiveProfile(null);
     });
@@ -191,7 +213,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await Promise.all(
         profiles.map((profile) =>
-          updateData("profiles-v1", profile.id, { isActive: profile.id === id })
+          updateData('profiles-v1', profile.id, { isActive: profile.id === id })
         )
       );
       setActiveProfile(profiles.find((p) => p.id === id) || null);
@@ -199,19 +221,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         prev.map((profile) => ({ ...profile, isActive: profile.id === id }))
       );
     } catch (error) {
-      console.error("Error switching profile:", error);
+      console.error('Error switching profile:', error);
     }
   };
 
-  const addTodo = (todo: Omit<Todo, "id" | "createdAt">) => {
+  const addTodo = (todo: Omit<Todo, 'id' | 'createdAt'>) => {
     const newTodo = { ...todo, createdAt: new Date() };
-    addData("todos-v1", newTodo).then((id) => {
+    addData('todos-v1', newTodo).then((id) => {
       if (id) setTodos((prev) => [...prev, { id, ...newTodo }]);
     });
   };
 
   const updateTodo = (id: string, updates: Partial<Todo>) => {
-    updateData("todos-v1", id, updates).then(() => {
+    updateData('todos-v1', id, updates).then(() => {
       setTodos((prev) =>
         prev.map((todo) => (todo.id === id ? { ...todo, ...updates } : todo))
       );
@@ -219,31 +241,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const deleteTodo = (id: string) => {
-    deleteData("todos-v1", id).then(() => {
+    deleteData('todos-v1', id).then(() => {
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     });
   };
 
-  const addTransaction = (transaction: Omit<Transaction, "id">) => {
-    addData("transactions-v1", transaction).then((id) => {
+  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
+    addData('transactions-v1', transaction).then((id) => {
       if (id) setTransactions((prev) => [...prev, { id, ...transaction }]);
     });
   };
 
   const deleteTransaction = (id: string) => {
-    deleteData("transactions-v1", id).then(() => {
+    deleteData('transactions-v1', id).then(() => {
       setTransactions((prev) => prev.filter((t) => t.id !== id));
     });
   };
 
-  const addReminder = (reminder: Omit<Reminder, "id">) => {
-    addData("reminders-v1", reminder).then((id) => {
+  const addReminder = (reminder: Omit<Reminder, 'id'>) => {
+    addData('reminders-v1', reminder).then((id) => {
       if (id) setReminders((prev) => [...prev, { id, ...reminder }]);
     });
   };
 
   const updateReminder = (id: string, updates: Partial<Reminder>) => {
-    updateData("reminders-v1", id, updates).then(() => {
+    updateData('reminders-v1', id, updates).then(() => {
       setReminders((prev) =>
         prev.map((r) => (r.id === id ? { ...r, ...updates } : r))
       );
@@ -251,7 +273,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const deleteReminder = (id: string) => {
-    deleteData("reminders-v1", id).then(() => {
+    deleteData('reminders-v1', id).then(() => {
       setReminders((prev) => prev.filter((r) => r.id !== id));
     });
   };
@@ -290,6 +312,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteReminder,
         updateDailyStreak,
         loadData,
+        isLoading,
       }}
     >
       {children}
@@ -300,7 +323,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useData = () => {
   const context = useContext(DataContext);
   if (context === undefined) {
-    throw new Error("useData must be used within a DataProvider");
+    throw new Error('useData must be used within a DataProvider');
   }
   return context;
 };

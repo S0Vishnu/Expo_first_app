@@ -13,12 +13,14 @@
     "@expo-google-fonts/inter": "^0.4.1",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-community/datetimepicker": "^8.4.1",
+    "@react-native-community/push-notification-ios": "^1.11.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.3.15",
     "@react-navigation/native": "^7.1.11",
     "expo": "~53.0.11",
     "expo-linear-gradient": "^14.1.5",
+    "expo-notifications": "^0.31.3",
     "expo-router": "^5.1.0",
     "expo-splash-screen": "^0.30.9",
     "expo-status-bar": "~2.2.3",
@@ -29,6 +31,7 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-circular-progress-indicator": "^4.4.2",
     "react-native-gesture-handler": "^2.26.0",
+    "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "^3.18.0",
     "react-native-safe-area-context": "^5.4.1",
     "react-native-screens": "^4.11.1",
@@ -38,6 +41,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "@types/react-native-push-notification": "^8.1.4",
     "typescript": "~5.8.3"
   },
   "private": true
