@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '../context/ThemeContext';
 
-export const todoStyles = (colors: any) =>
+export const todoStyles = (colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,

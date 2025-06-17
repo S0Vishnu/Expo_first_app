@@ -44,7 +44,17 @@ export interface Reminder {
   title: string;
   content: string;
   time: Date;
-  repeat: 'day' | 'week' | 'hour' | 'minute' | 'time' | undefined | any;
+  repeat:
+    | 'day'
+    | 'week'
+    | 'hour'
+    | 'minute'
+    | 'time'
+    | 'none'
+    | 'daily'
+    | 'weekly'
+    | 'monthly'
+    | undefined;
   isActive: boolean;
   profileId: string;
   selectedDays?: number[]; // Add this line
@@ -100,7 +110,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchData();
   }, [loadCount]);
 
-  const convertDate = (date: any): Date | undefined =>
+  const convertDate = (date: Date): Date | undefined =>
     date instanceof Timestamp ? date.toDate() : date;
 
   const loadData = async () => {
@@ -167,7 +177,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const addData = async (key: string, data: any) => {
+  const addData = async (key: string, data: unknown) => {
     try {
       const docRef = await addDoc(collection(db, key), data);
       return docRef.id;
@@ -177,7 +187,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const updateData = async (key: string, id: string, data: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateData = async (key: string, id: string, data: { [x: string]: any; }) => {
     try {
       await updateDoc(doc(db, key, id), data);
     } catch (error) {

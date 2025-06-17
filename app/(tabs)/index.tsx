@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
-import { useData } from '../../context/DataContext';
+import { Reminder, useData } from '../../context/DataContext';
 import {
   Flame,
   SquareCheck as CheckSquare,
@@ -46,7 +46,7 @@ export default function HomeScreen() {
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showRepeatOptions, setShowRepeatOptions] = useState(false);
-  const [editingReminder, setEditingReminder] = useState<null | any>(null);
+  const [editingReminder, setEditingReminder] = useState<null | Reminder>(null);
 
   const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
   const [reminderToDelete, setReminderToDelete] = useState<string | null>(null);
@@ -55,20 +55,20 @@ export default function HomeScreen() {
     title: '',
     content: '',
     time: new Date(),
-    repeat: 'none' as 'none' | 'daily' | 'weekly' | 'monthly',
+    repeat: 'none' as 'none' | 'daily' | 'weekly' | 'monthly' | undefined,
     isActive: true,
   });
 
   // Days of week for repeat options
-  const daysOfWeek = [
-    { id: 0, name: 'Sun' },
-    { id: 1, name: 'Mon' },
-    { id: 2, name: 'Tue' },
-    { id: 3, name: 'Wed' },
-    { id: 4, name: 'Thu' },
-    { id: 5, name: 'Fri' },
-    { id: 6, name: 'Sat' },
-  ];
+  // const daysOfWeek = [
+  //   { id: 0, name: 'Sun' },
+  //   { id: 1, name: 'Mon' },
+  //   { id: 2, name: 'Tue' },
+  //   { id: 3, name: 'Wed' },
+  //   { id: 4, name: 'Thu' },
+  //   { id: 5, name: 'Fri' },
+  //   { id: 6, name: 'Sat' },
+  // ];
 
   const completedTodos = todos.filter((todo) => todo.completed).length;
   const totalTodos = todos.length;
@@ -106,6 +106,7 @@ export default function HomeScreen() {
     resetReminderForm();
   };
 
+  // eslint-disable-next-line
   const handleEditReminder = (reminder: any) => {
     setEditingReminder(reminder);
     setNewReminder({
@@ -150,7 +151,7 @@ export default function HomeScreen() {
     setShowRepeatOptions(false);
   };
 
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
+  const handleTimeChange = (event: unknown, selectedTime?: Date) => {
     setShowTimePicker(Platform.OS === 'ios');
     if (selectedTime) {
       setNewReminder({ ...newReminder, time: selectedTime });
@@ -183,7 +184,7 @@ export default function HomeScreen() {
           <Text style={styles.greeting}>
             Hello, {activeProfile?.name || 'User'}! {activeProfile?.avatar}
           </Text>
-          <Text style={styles.subtitle}>Let's make today productive</Text>
+          <Text style={styles.subtitle}>Let&apos;s make today productive</Text>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -353,8 +354,6 @@ export default function HomeScreen() {
                   <Text
                     style={[
                       styles.repeatOptionText,
-                      newReminder.repeat === 'none' &&
-                        styles.repeatOptionTextActive,
                     ]}
                   >
                     Does not repeat
@@ -373,8 +372,6 @@ export default function HomeScreen() {
                   <Text
                     style={[
                       styles.repeatOptionText,
-                      newReminder.repeat === 'daily' &&
-                        styles.repeatOptionTextActive,
                     ]}
                   >
                     Daily
@@ -394,8 +391,6 @@ export default function HomeScreen() {
                   <Text
                     style={[
                       styles.repeatOptionText,
-                      newReminder.repeat === 'weekly' &&
-                        styles.repeatOptionTextActive,
                     ]}
                   >
                     Weekly
@@ -415,8 +410,6 @@ export default function HomeScreen() {
                   <Text
                     style={[
                       styles.repeatOptionText,
-                      newReminder.repeat === 'monthly' &&
-                        styles.repeatOptionTextActive,
                     ]}
                   >
                     Monthly
@@ -460,17 +453,17 @@ export default function HomeScreen() {
 }
 
 // Helper function to format repeat text for display
-function formatRepeatText(repeat: string) {
-  switch (repeat) {
-    case 'none':
-      return 'Does not repeat';
-    case 'daily':
-      return 'Daily';
-    case 'weekly':
-      return 'Weekly';
-    case 'monthly':
-      return 'Monthly';
-    default:
-      return '';
-  }
-}
+// function formatRepeatText(repeat: string) {
+//   switch (repeat) {
+//     case 'none':
+//       return 'Does not repeat';
+//     case 'daily':
+//       return 'Daily';
+//     case 'weekly':
+//       return 'Weekly';
+//     case 'monthly':
+//       return 'Monthly';
+//     default:
+//       return '';
+//   }
+// }

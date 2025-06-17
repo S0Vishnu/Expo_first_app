@@ -9,7 +9,7 @@ export default function NotificationHandler() {
   useEffect(() => {
     // Configure notifications
     PushNotification.configure({
-      onNotification: function (notification: any) {
+      onNotification: function (notification: unknown) {
         console.log('Notification received:', notification);
       },
       requestPermissions: true,

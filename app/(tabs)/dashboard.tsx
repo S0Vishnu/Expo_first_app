@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Dimensions,
@@ -40,7 +39,7 @@ export default function DashboardScreen() {
 
   const getFilteredTransactions = () => {
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
 
     switch (selectedPeriod) {
       case 'week':

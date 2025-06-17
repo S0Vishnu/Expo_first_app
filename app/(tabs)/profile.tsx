@@ -174,7 +174,7 @@ export default function ProfileScreen() {
                   styles.themeItem,
                   theme === themeOption.key && styles.activeThemeItem,
                 ]}
-                onPress={() => setTheme(themeOption.key as any)}
+                onPress={() => setTheme(themeOption.key as unknown as 'light' | 'dark' | 'black')}
               >
                 <View style={styles.themeLeft}>
                   <IconComponent size={20} color={colors.text} />

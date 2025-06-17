@@ -20,10 +20,20 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.vishnus0.lasymapp2"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "80d9fff0-c7c0-4e5f-af99-b099c64fab5f"
+      }
+    },
+    "owner": "vishnus0",
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

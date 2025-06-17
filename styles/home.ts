@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '../context/ThemeContext';
 
-export const homeStyles = (colors: any) =>
+export const homeStyles = (colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -179,7 +180,7 @@ export const homeStyles = (colors: any) =>
       alignItems: 'center',
       padding: 15,
       marginVertical: 10,
-      backgroundColor: colors.backgroundSecondary,
+
       borderRadius: 10,
     },
     timeInputText: {
@@ -191,7 +192,7 @@ export const homeStyles = (colors: any) =>
       alignItems: 'center',
       padding: 15,
       marginVertical: 10,
-      backgroundColor: colors.backgroundSecondary,
+
       borderRadius: 10,
     },
     repeatInputText: {
@@ -205,16 +206,12 @@ export const homeStyles = (colors: any) =>
       padding: 15,
       marginVertical: 5,
       borderRadius: 10,
-      backgroundColor: colors.backgroundSecondary,
     },
     repeatOptionActive: {
       backgroundColor: colors.primary,
     },
     repeatOptionText: {
       color: colors.text,
-    },
-    repeatOptionTextActive: {
-      color: colors.textInverse,
     },
     daySelection: {
       flexDirection: 'row',
@@ -229,16 +226,12 @@ export const homeStyles = (colors: any) =>
       alignItems: 'center',
       borderRadius: 20,
       margin: 2,
-      backgroundColor: colors.backgroundSecondary,
     },
     dayButtonActive: {
       backgroundColor: colors.primary,
     },
     dayButtonText: {
       color: colors.text,
-    },
-    dayButtonTextActive: {
-      color: colors.textInverse,
     },
     reminderHeader: {
       flexDirection: 'row',

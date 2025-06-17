@@ -312,7 +312,7 @@ export default function TodoScreen() {
                         styles.pickerButtonActive,
                     ]}
                     onPress={() =>
-                      setNewTodo({ ...newTodo, priority: priority as any })
+                      setNewTodo({ ...newTodo, priority: priority as 'low' | 'medium' | 'high' })
                     }
                   >
                     <Text

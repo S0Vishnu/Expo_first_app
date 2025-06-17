@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '../context/ThemeContext';
 
-export const dashboardStyles = (colors: any) =>
+export const dashboardStyles = (colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
