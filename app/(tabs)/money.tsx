@@ -21,6 +21,7 @@ import {
 } from 'lucide-react-native';
 import { moneyStyles } from '../../styles/money';
 import CustomAlert from '../../components/AlertModel';
+import RefreshGestureContext from '../../context/RefreshContext';
 
 export default function MoneyScreen() {
   const { colors } = useTheme();
@@ -179,126 +180,128 @@ export default function MoneyScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Money</Text>
-        <View style={styles.headerButtons}>
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => setFilterModalVisible(true)}
-          >
-            <Filter size={20} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.balanceContainer}>
-          <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>₹{balance.toFixed(2)}</Text>
-
-          <View style={styles.balanceRow}>
-            <View style={styles.balanceItem}>
-              <Text style={styles.balanceItemLabel}>Income</Text>
-              <Text style={styles.balanceItemAmount}>
-                +₹{totalIncome.toFixed(2)}
-              </Text>
-            </View>
-            <View style={styles.balanceItem}>
-              <Text style={styles.balanceItemLabel}>Expenses</Text>
-              <Text style={styles.balanceItemAmount}>
-                -₹{totalExpense.toFixed(2)}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterContainer}
-        >
-          {filters.map((filter) => (
+      <RefreshGestureContext>
+        <View style={styles.header}>
+          <Text style={styles.title}>Money</Text>
+          <View style={styles.headerButtons}>
             <TouchableOpacity
-              key={filter}
-              style={[
-                styles.filterButton,
-                activeFilter === filter && styles.filterButtonActive,
-              ]}
-              onPress={() => setActiveFilter(filter)}
+              style={styles.headerButton}
+              onPress={() => setFilterModalVisible(true)}
             >
-              <Text
-                style={[
-                  styles.filterButtonText,
-                  activeFilter === filter && styles.filterButtonTextActive,
-                ]}
-              >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </Text>
+              <Filter size={20} color={colors.text} />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {filteredTransactions.length === 0 ? (
-          <View style={styles.emptyState}>
-            <IndianRupee size={48} color={colors.textSecondary} />
-            <Text style={styles.emptyStateText}>
-              No transactions found.{'\n'}Tap the + button to add one!
-            </Text>
           </View>
-        ) : (
-          filteredTransactions
-            .sort(
-              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-            )
-            .map((transaction) => (
-              <View key={transaction.id} style={styles.transactionItem}>
-                <View style={styles.transactionHeader}>
-                  <View style={styles.transactionLeft}>
-                    <View style={styles.transactionIcon}>
-                      {transaction.type === 'income' ? (
-                        <TrendingUp size={20} color={colors.success} />
-                      ) : (
-                        <TrendingDown size={20} color={colors.error} />
-                      )}
-                    </View>
-                    <Text style={styles.transactionTitle}>
-                      {transaction.description}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.transactionAmount,
-                      transaction.type === 'income'
-                        ? styles.incomeAmount
-                        : styles.expenseAmount,
-                    ]}
-                  >
-                    {transaction.type === 'income' ? '+' : '-'}₹
-                    {transaction.amount.toFixed(2)}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteTransaction(transaction.id)}
-                  >
-                    <Trash2 size={16} color={colors.error} />
-                  </TouchableOpacity>
-                </View>
+        </View>
 
-                <View style={styles.transactionFooter}>
-                  <View style={styles.categoryTag}>
-                    <Text style={styles.categoryText}>
-                      {transaction.category}
-                    </Text>
-                  </View>
-                  <Text style={styles.transactionDate}>
-                    {new Date(transaction.date).toLocaleDateString()}
-                  </Text>
-                </View>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.balanceContainer}>
+            <Text style={styles.balanceLabel}>Total Balance</Text>
+            <Text style={styles.balanceAmount}>₹{balance.toFixed(2)}</Text>
+
+            <View style={styles.balanceRow}>
+              <View style={styles.balanceItem}>
+                <Text style={styles.balanceItemLabel}>Income</Text>
+                <Text style={styles.balanceItemAmount}>
+                  +₹{totalIncome.toFixed(2)}
+                </Text>
               </View>
-            ))
-        )}
-      </ScrollView>
+              <View style={styles.balanceItem}>
+                <Text style={styles.balanceItemLabel}>Expenses</Text>
+                <Text style={styles.balanceItemAmount}>
+                  -₹{totalExpense.toFixed(2)}
+                </Text>
+              </View>
+            </View>
+          </View>
 
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterContainer}
+          >
+            {filters.map((filter) => (
+              <TouchableOpacity
+                key={filter}
+                style={[
+                  styles.filterButton,
+                  activeFilter === filter && styles.filterButtonActive,
+                ]}
+                onPress={() => setActiveFilter(filter)}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    activeFilter === filter && styles.filterButtonTextActive,
+                  ]}
+                >
+                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {filteredTransactions.length === 0 ? (
+            <View style={styles.emptyState}>
+              <IndianRupee size={48} color={colors.textSecondary} />
+              <Text style={styles.emptyStateText}>
+                No transactions found.{'\n'}Tap the + button to add one!
+              </Text>
+            </View>
+          ) : (
+            filteredTransactions
+              .sort(
+                (a, b) =>
+                  new Date(b.date).getTime() - new Date(a.date).getTime()
+              )
+              .map((transaction) => (
+                <View key={transaction.id} style={styles.transactionItem}>
+                  <View style={styles.transactionHeader}>
+                    <View style={styles.transactionLeft}>
+                      <View style={styles.transactionIcon}>
+                        {transaction.type === 'income' ? (
+                          <TrendingUp size={20} color={colors.success} />
+                        ) : (
+                          <TrendingDown size={20} color={colors.error} />
+                        )}
+                      </View>
+                      <Text style={styles.transactionTitle}>
+                        {transaction.description}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.transactionAmount,
+                        transaction.type === 'income'
+                          ? styles.incomeAmount
+                          : styles.expenseAmount,
+                      ]}
+                    >
+                      {transaction.type === 'income' ? '+' : '-'}₹
+                      {transaction.amount.toFixed(2)}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteTransaction(transaction.id)}
+                    >
+                      <Trash2 size={16} color={colors.error} />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.transactionFooter}>
+                    <View style={styles.categoryTag}>
+                      <Text style={styles.categoryText}>
+                        {transaction.category}
+                      </Text>
+                    </View>
+                    <Text style={styles.transactionDate}>
+                      {new Date(transaction.date).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
+              ))
+          )}
+        </ScrollView>
+      </RefreshGestureContext>
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setModalVisible(true)}
@@ -502,6 +505,7 @@ export default function MoneyScreen() {
           </View>
         </View>
       </Modal>
+
       <CustomAlert
         visible={deleteAlertVisible}
         title="Delete Entry"

@@ -11,12 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { useData } from '../../context/DataContext';
-import {
-  Flame,
-  SquareCheck as CheckSquare,
-  Plus,
-} from 'lucide-react-native';
+import { Flame, SquareCheck as CheckSquare, Plus } from 'lucide-react-native';
 import { homeStyles } from '../../styles/home';
+import RefreshGestureContext from '../../context/RefreshContext';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -27,7 +24,6 @@ export default function HomeScreen() {
     reminders,
     dailyStreak,
     addReminder,
-    updateDailyStreak,
   } = useData();
 
   const styles = homeStyles(colors);
@@ -76,65 +72,66 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>
-          Hello, {activeProfile?.name || 'User'}! {activeProfile?.avatar}
-        </Text>
-        <Text style={styles.subtitle}>Let's make today productive</Text>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.cardContainer}>
-          <View style={styles.card}>
-            <View style={styles.cardIcon}>
-              <Flame size={24} color={colors.warning} />
-            </View>
-            <Text style={styles.cardValue}>{dailyStreak}</Text>
-            <Text style={styles.cardLabel}>Day Streak</Text>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.cardIcon}>
-              <CheckSquare size={24} color={colors.success} />
-            </View>
-            <Text style={styles.cardValue}>
-              {completedTodos}/{totalTodos}
-            </Text>
-            <Text style={styles.cardLabel}>Tasks Done</Text>
-          </View>
+      <RefreshGestureContext>
+        <View style={styles.header}>
+          <Text style={styles.greeting}>
+            Hello, {activeProfile?.name || 'User'}! {activeProfile?.avatar}
+          </Text>
+          <Text style={styles.subtitle}>Let's make today productive</Text>
         </View>
 
-        <View style={[styles.card, styles.balanceCard]}>
-          <Text style={styles.balanceValue}>₹{balance.toFixed(2)}</Text>
-          <Text style={styles.balanceLabel}>Available Balance</Text>
-        </View>
-
-        <View style={styles.reminderSection}>
-          <Text style={styles.sectionTitle}>Reminders</Text>
-
-          <TouchableOpacity
-            style={styles.addReminderButton}
-            onPress={() => setReminderModalVisible(true)}
-          >
-            <Plus size={20} color={colors.textSecondary} />
-            <Text style={styles.addReminderText}>Add new reminder</Text>
-          </TouchableOpacity>
-
-          {reminders
-            .filter((r) => r.profileId === activeProfile?.id && r.isActive)
-            .slice(0, 3)
-            .map((reminder) => (
-              <View key={reminder.id} style={styles.reminderItem}>
-                <Text style={styles.reminderTitle}>{reminder.title}</Text>
-                <Text style={styles.reminderContent}>{reminder.content}</Text>
-                <Text style={styles.reminderTime}>
-                  {reminder.time.toLocaleTimeString()} • {reminder.repeat}
-                </Text>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.cardContainer}>
+            <View style={styles.card}>
+              <View style={styles.cardIcon}>
+                <Flame size={24} color={colors.warning} />
               </View>
-            ))}
-        </View>
-      </ScrollView>
+              <Text style={styles.cardValue}>{dailyStreak}</Text>
+              <Text style={styles.cardLabel}>Day Streak</Text>
+            </View>
 
+            <View style={styles.card}>
+              <View style={styles.cardIcon}>
+                <CheckSquare size={24} color={colors.success} />
+              </View>
+              <Text style={styles.cardValue}>
+                {completedTodos}/{totalTodos}
+              </Text>
+              <Text style={styles.cardLabel}>Tasks Done</Text>
+            </View>
+          </View>
+
+          <View style={[styles.card, styles.balanceCard]}>
+            <Text style={styles.balanceValue}>₹{balance.toFixed(2)}</Text>
+            <Text style={styles.balanceLabel}>Available Balance</Text>
+          </View>
+
+          <View style={styles.reminderSection}>
+            <Text style={styles.sectionTitle}>Reminders</Text>
+
+            <TouchableOpacity
+              style={styles.addReminderButton}
+              onPress={() => setReminderModalVisible(true)}
+            >
+              <Plus size={20} color={colors.textSecondary} />
+              <Text style={styles.addReminderText}>Add new reminder</Text>
+            </TouchableOpacity>
+
+            {reminders
+              .filter((r) => r.profileId === activeProfile?.id && r.isActive)
+              .slice(0, 3)
+              .map((reminder) => (
+                <View key={reminder.id} style={styles.reminderItem}>
+                  <Text style={styles.reminderTitle}>{reminder.title}</Text>
+                  <Text style={styles.reminderContent}>{reminder.content}</Text>
+                  <Text style={styles.reminderTime}>
+                    {reminder.time.toLocaleTimeString()} • {reminder.repeat}
+                  </Text>
+                </View>
+              ))}
+          </View>
+        </ScrollView>
+      </RefreshGestureContext>
       <Modal
         visible={reminderModalVisible}
         transparent

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react-native';
 import { todoStyles } from '../../styles/todo';
 import CustomAlert from '../../components/AlertModel';
+import RefreshGestureContext from '../../context/RefreshContext';
 
 export default function TodoScreen() {
   const { colors } = useTheme();
@@ -124,114 +125,115 @@ export default function TodoScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Todo</Text>
-        <View style={styles.headerButtons}>
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => setFilterModalVisible(true)}
-          >
-            <Filter size={20} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterContainer}
-        >
-          {filters.map((filter) => (
+      <RefreshGestureContext>
+        <View style={styles.header}>
+          <Text style={styles.title}>Todo</Text>
+          <View style={styles.headerButtons}>
             <TouchableOpacity
-              key={filter}
-              style={[
-                styles.filterButton,
-                activeFilter === filter && styles.filterButtonActive,
-              ]}
-              onPress={() => setActiveFilter(filter)}
+              style={styles.headerButton}
+              onPress={() => setFilterModalVisible(true)}
             >
-              <Text
+              <Filter size={20} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterContainer}
+          >
+            {filters.map((filter) => (
+              <TouchableOpacity
+                key={filter}
                 style={[
-                  styles.filterButtonText,
-                  activeFilter === filter && styles.filterButtonTextActive,
+                  styles.filterButton,
+                  activeFilter === filter && styles.filterButtonActive,
+                ]}
+                onPress={() => setActiveFilter(filter)}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    activeFilter === filter && styles.filterButtonTextActive,
+                  ]}
+                >
+                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {filteredTodos.length === 0 ? (
+            <View style={styles.emptyState}>
+              <CheckSquare size={48} color={colors.textSecondary} />
+              <Text style={styles.emptyStateText}>
+                No todos found.{'\n'}Tap the + button to add one!
+              </Text>
+            </View>
+          ) : (
+            filteredTodos.map((todo) => (
+              <View
+                key={todo.id}
+                style={[
+                  styles.todoItem,
+                  todo.completed && styles.todoItemCompleted,
                 ]}
               >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {filteredTodos.length === 0 ? (
-          <View style={styles.emptyState}>
-            <CheckSquare size={48} color={colors.textSecondary} />
-            <Text style={styles.emptyStateText}>
-              No todos found.{'\n'}Tap the + button to add one!
-            </Text>
-          </View>
-        ) : (
-          filteredTodos.map((todo) => (
-            <View
-              key={todo.id}
-              style={[
-                styles.todoItem,
-                todo.completed && styles.todoItemCompleted,
-              ]}
-            >
-              <View style={styles.todoHeader}>
-                <View style={styles.todoLeft}>
+                <View style={styles.todoHeader}>
+                  <View style={styles.todoLeft}>
+                    <TouchableOpacity
+                      onPress={() => handleToggleTodo(todo.id, todo.completed)}
+                    >
+                      {todo.completed ? (
+                        <CheckSquare size={20} color={colors.success} />
+                      ) : (
+                        <Square size={20} color={colors.textSecondary} />
+                      )}
+                    </TouchableOpacity>
+                    <Text
+                      style={[
+                        styles.todoTitle,
+                        todo.completed && styles.todoTitleCompleted,
+                      ]}
+                    >
+                      {todo.title}
+                    </Text>
+                  </View>
                   <TouchableOpacity
-                    onPress={() => handleToggleTodo(todo.id, todo.completed)}
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteTodo(todo.id)}
                   >
-                    {todo.completed ? (
-                      <CheckSquare size={20} color={colors.success} />
-                    ) : (
-                      <Square size={20} color={colors.textSecondary} />
-                    )}
+                    <Trash2 size={16} color={colors.error} />
                   </TouchableOpacity>
-                  <Text
-                    style={[
-                      styles.todoTitle,
-                      todo.completed && styles.todoTitleCompleted,
-                    ]}
-                  >
-                    {todo.title}
+                </View>
+
+                {todo.description ? (
+                  <Text style={styles.todoDescription}>{todo.description}</Text>
+                ) : null}
+
+                <View style={styles.todoFooter}>
+                  <View style={styles.todoMeta}>
+                    <View style={styles.categoryTag}>
+                      <Text style={styles.categoryText}>{todo.category}</Text>
+                    </View>
+                    <View
+                      style={[
+                        styles.priorityIndicator,
+                        { backgroundColor: getPriorityColor(todo.priority) },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.todoDescription}>
+                    {new Date(todo.createdAt).toLocaleDateString()}
                   </Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeleteTodo(todo.id)}
-                >
-                  <Trash2 size={16} color={colors.error} />
-                </TouchableOpacity>
               </View>
-
-              {todo.description ? (
-                <Text style={styles.todoDescription}>{todo.description}</Text>
-              ) : null}
-
-              <View style={styles.todoFooter}>
-                <View style={styles.todoMeta}>
-                  <View style={styles.categoryTag}>
-                    <Text style={styles.categoryText}>{todo.category}</Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.priorityIndicator,
-                      { backgroundColor: getPriorityColor(todo.priority) },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.todoDescription}>
-                  {new Date(todo.createdAt).toLocaleDateString()}
-                </Text>
-              </View>
-            </View>
-          ))
-        )}
-      </ScrollView>
-
+            ))
+          )}
+        </ScrollView>
+      </RefreshGestureContext>
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setModalVisible(true)}

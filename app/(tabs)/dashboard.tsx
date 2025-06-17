@@ -19,6 +19,7 @@ import {
   Activity,
 } from 'lucide-react-native';
 import { dashboardStyles } from '../../styles/dashboard';
+import RefreshGestureContext from '../../context/RefreshContext';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -235,157 +236,164 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Dashboard</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.periodSelector}
-        >
-          {periods.map((period) => (
-            <TouchableOpacity
-              key={period}
-              style={[
-                styles.periodButton,
-                selectedPeriod === period && styles.periodButtonActive,
-              ]}
-              onPress={() => setSelectedPeriod(period)}
-            >
+      <RefreshGestureContext>
+        <View style={styles.header}>
+          <Text style={styles.title}>Dashboard</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.periodSelector}
+          >
+            {periods.map((period) => (
+              <TouchableOpacity
+                key={period}
+                style={[
+                  styles.periodButton,
+                  selectedPeriod === period && styles.periodButtonActive,
+                ]}
+                onPress={() => setSelectedPeriod(period)}
+              >
+                <Text
+                  style={[
+                    styles.periodButtonText,
+                    selectedPeriod === period && styles.periodButtonTextActive,
+                  ]}
+                >
+                  {period === '3months'
+                    ? '3M'
+                    : period === '6months'
+                    ? '6M'
+                    : period.charAt(0).toUpperCase() + period.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.statsContainer}>
+            <View style={styles.statCard}>
+              <TrendingUp size={24} color={colors.success} />
+
+              <Text style={[styles.statValue, { color: colors.success }]}>
+                ₹{totalIncome.toFixed(0)}
+              </Text>
+              <Text style={styles.statLabel}>Total Income</Text>
+            </View>
+
+            <View style={styles.statCard}>
+              <TrendingDown size={24} color={colors.error} />
+              <Text style={[styles.statValue, { color: colors.error }]}>
+                ₹{totalExpense.toFixed(0)}
+              </Text>
+              <Text style={styles.statLabel}>Total Expenses</Text>
+            </View>
+
+            <View style={styles.statCard}>
+              <Activity size={24} color={colors.primary} />
+              <Text style={styles.statValue}>{completionRate.toFixed(0)}%</Text>
+              <Text style={styles.statLabel}>Task Completion</Text>
+            </View>
+          </View>
+
+          <View style={styles.chartContainer}>
+            <View style={styles.chartHeader}>
+              <Text style={styles.chartTitle}>Financial Overview</Text>
+              <View style={styles.chartTypeSelector}>
+                {chartTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.chartTypeButton,
+                      selectedChart === type && styles.chartTypeButtonActive,
+                    ]}
+                    onPress={() => setSelectedChart(type)}
+                  >
+                    {type === 'line' ? (
+                      <Activity
+                        size={16}
+                        color={selectedChart === type ? '#FFFFFF' : colors.text}
+                      />
+                    ) : type === 'bar' ? (
+                      <BarChart3
+                        size={16}
+                        color={selectedChart === type ? '#FFFFFF' : colors.text}
+                      />
+                    ) : (
+                      <PieChartIcon
+                        size={16}
+                        color={selectedChart === type ? '#FFFFFF' : colors.text}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {renderChart()}
+          </View>
+
+          <View style={styles.insightsContainer}>
+            <Text style={styles.insightsTitle}>Insights</Text>
+
+            <View style={styles.insightItem}>
+              <View style={styles.insightIcon}>
+                <TrendingUp size={20} color={colors.success} />
+              </View>
+              <Text style={styles.insightText}>Average daily income</Text>
+              <Text style={styles.insightValue}>
+                ₹
+                {(totalIncome / (selectedPeriod === 'week' ? 7 : 30)).toFixed(
+                  2
+                )}
+              </Text>
+            </View>
+
+            <View style={styles.insightItem}>
+              <View style={styles.insightIcon}>
+                <TrendingDown size={20} color={colors.error} />
+              </View>
+              <Text style={styles.insightText}>Average daily expense</Text>
+              <Text style={styles.insightValue}>
+                ₹
+                {(totalExpense / (selectedPeriod === 'week' ? 7 : 30)).toFixed(
+                  2
+                )}
+              </Text>
+            </View>
+
+            <View style={styles.insightItem}>
+              <View style={styles.insightIcon}>
+                <Activity size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.insightText}>Tasks completed</Text>
+              <Text style={styles.insightValue}>
+                {completedTodos}/{totalTodos}
+              </Text>
+            </View>
+
+            <View style={styles.insightItem}>
+              <View style={styles.insightIcon}>
+                <BarChart3 size={20} color={colors.warning} />
+              </View>
+              <Text style={styles.insightText}>Net balance</Text>
               <Text
                 style={[
-                  styles.periodButtonText,
-                  selectedPeriod === period && styles.periodButtonTextActive,
+                  styles.insightValue,
+                  {
+                    color:
+                      totalIncome - totalExpense >= 0
+                        ? colors.success
+                        : colors.error,
+                  },
                 ]}
               >
-                {period === '3months'
-                  ? '3M'
-                  : period === '6months'
-                  ? '6M'
-                  : period.charAt(0).toUpperCase() + period.slice(1)}
+                ₹{(totalIncome - totalExpense).toFixed(2)}
               </Text>
-            </TouchableOpacity>
-          ))}
+            </View>
+          </View>
         </ScrollView>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <TrendingUp size={24} color={colors.success} />
-
-            <Text style={[styles.statValue, { color: colors.success }]}>
-              ₹{totalIncome.toFixed(0)}
-            </Text>
-            <Text style={styles.statLabel}>Total Income</Text>
-          </View>
-
-          <View style={styles.statCard}>
-            <TrendingDown size={24} color={colors.error} />
-            <Text style={[styles.statValue, { color: colors.error }]}>
-              ₹{totalExpense.toFixed(0)}
-            </Text>
-            <Text style={styles.statLabel}>Total Expenses</Text>
-          </View>
-
-          <View style={styles.statCard}>
-            <Activity size={24} color={colors.primary} />
-            <Text style={styles.statValue}>{completionRate.toFixed(0)}%</Text>
-            <Text style={styles.statLabel}>Task Completion</Text>
-          </View>
-        </View>
-
-        <View style={styles.chartContainer}>
-          <View style={styles.chartHeader}>
-            <Text style={styles.chartTitle}>Financial Overview</Text>
-            <View style={styles.chartTypeSelector}>
-              {chartTypes.map((type) => (
-                <TouchableOpacity
-                  key={type}
-                  style={[
-                    styles.chartTypeButton,
-                    selectedChart === type && styles.chartTypeButtonActive,
-                  ]}
-                  onPress={() => setSelectedChart(type)}
-                >
-                  {type === 'line' ? (
-                    <Activity
-                      size={16}
-                      color={selectedChart === type ? '#FFFFFF' : colors.text}
-                    />
-                  ) : type === 'bar' ? (
-                    <BarChart3
-                      size={16}
-                      color={selectedChart === type ? '#FFFFFF' : colors.text}
-                    />
-                  ) : (
-                    <PieChartIcon
-                      size={16}
-                      color={selectedChart === type ? '#FFFFFF' : colors.text}
-                    />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {renderChart()}
-        </View>
-
-        <View style={styles.insightsContainer}>
-          <Text style={styles.insightsTitle}>Insights</Text>
-
-          <View style={styles.insightItem}>
-            <View style={styles.insightIcon}>
-              <TrendingUp size={20} color={colors.success} />
-            </View>
-            <Text style={styles.insightText}>Average daily income</Text>
-            <Text style={styles.insightValue}>
-              ₹{(totalIncome / (selectedPeriod === 'week' ? 7 : 30)).toFixed(2)}
-            </Text>
-          </View>
-
-          <View style={styles.insightItem}>
-            <View style={styles.insightIcon}>
-              <TrendingDown size={20} color={colors.error} />
-            </View>
-            <Text style={styles.insightText}>Average daily expense</Text>
-            <Text style={styles.insightValue}>
-              ₹
-              {(totalExpense / (selectedPeriod === 'week' ? 7 : 30)).toFixed(2)}
-            </Text>
-          </View>
-
-          <View style={styles.insightItem}>
-            <View style={styles.insightIcon}>
-              <Activity size={20} color={colors.primary} />
-            </View>
-            <Text style={styles.insightText}>Tasks completed</Text>
-            <Text style={styles.insightValue}>
-              {completedTodos}/{totalTodos}
-            </Text>
-          </View>
-
-          <View style={styles.insightItem}>
-            <View style={styles.insightIcon}>
-              <BarChart3 size={20} color={colors.warning} />
-            </View>
-            <Text style={styles.insightText}>Net balance</Text>
-            <Text
-              style={[
-                styles.insightValue,
-                {
-                  color:
-                    totalIncome - totalExpense >= 0
-                      ? colors.success
-                      : colors.error,
-                },
-              ]}
-            >
-              ₹{(totalIncome - totalExpense).toFixed(2)}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
+      </RefreshGestureContext>
     </SafeAreaView>
   );
 }

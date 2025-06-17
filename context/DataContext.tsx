@@ -68,6 +68,7 @@ interface DataContextType {
   updateReminder: (id: string, updates: Partial<Reminder>) => void;
   deleteReminder: (id: string) => void;
   updateDailyStreak: () => void;
+  loadData: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -149,7 +150,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
       const docRef = await addDoc(collection(db, key), data);
       return docRef.id;
     } catch (error) {
-      console.error(`Error adding to ₹{key}:`, error);
+      console.error(`Error adding to ${key}:`, error);
       throw error;
     }
   };
@@ -158,7 +159,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await updateDoc(doc(db, key, id), data);
     } catch (error) {
-      console.error(`Error updating ₹{key}:`, error);
+      console.error(`Error updating ${key}:`, error);
       throw error;
     }
   };
@@ -167,7 +168,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await deleteDoc(doc(db, key, id));
     } catch (error) {
-      console.error(`Error deleting ₹{key}:`, error);
+      console.error(`Error deleting ${key}:`, error);
       throw error;
     }
   };
@@ -288,6 +289,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         updateReminder,
         deleteReminder,
         updateDailyStreak,
+        loadData,
       }}
     >
       {children}
