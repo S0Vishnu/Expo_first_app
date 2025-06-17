@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Modal,
@@ -21,6 +20,7 @@ import {
   IndianRupee,
 } from 'lucide-react-native';
 import { moneyStyles } from '../../styles/money';
+import CustomAlert from '../../components/AlertModel';
 
 export default function MoneyScreen() {
   const { colors } = useTheme();
@@ -32,6 +32,10 @@ export default function MoneyScreen() {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeCategoryFilter, setActiveCategoryFilter] = useState('all');
+
+  const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
+  const [toDelete, setToDelete] = useState<string | null>(null);
+
   const [newTransaction, setNewTransaction] = useState({
     type: 'expense' as 'income' | 'expense',
     amount: '',
@@ -141,19 +145,37 @@ export default function MoneyScreen() {
   };
 
   const handleDeleteTransaction = (id: string) => {
-    Alert.alert(
-      'Delete Transaction',
-      'Are you sure you want to delete this transaction?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteTransaction(id),
-        },
-      ]
-    );
+    setToDelete(id);
+    setDeleteAlertVisible(true);
   };
+
+  const confirmDelete = () => {
+    if (toDelete) {
+      deleteTransaction(toDelete);
+      setToDelete(null);
+    }
+    setDeleteAlertVisible(false);
+  };
+
+  const cancelDelete = () => {
+    setToDelete(null);
+    setDeleteAlertVisible(false);
+  };
+
+  // const handleDeleteTransaction = (id: string) => {
+  //   Alert.alert(
+  //     'Delete Transaction',
+  //     'Are you sure you want to delete this transaction?',
+  //     [
+  //       { text: 'Cancel', style: 'cancel' },
+  //       {
+  //         text: 'Delete',
+  //         style: 'destructive',
+  //         onPress: () => deleteTransaction(id),
+  //       },
+  //     ]
+  //   );
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -480,6 +502,15 @@ export default function MoneyScreen() {
           </View>
         </View>
       </Modal>
+      <CustomAlert
+        visible={deleteAlertVisible}
+        title="Delete Entry"
+        message="Are you sure you want to delete this entry?"
+        onCancel={cancelDelete}
+        onConfirm={confirmDelete}
+        cancelText="No"
+        confirmText="Yes"
+      />
     </SafeAreaView>
   );
 }

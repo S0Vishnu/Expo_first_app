@@ -18,11 +18,13 @@ import {
   ChartPie as PieChartIcon,
   Activity,
 } from 'lucide-react-native';
+import { dashboardStyles } from '../../styles/dashboard';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function DashboardScreen() {
   const { colors } = useTheme();
+  const styles = dashboardStyles(colors);
   const { activeProfile, transactions, todos } = useData();
 
   const [selectedPeriod, setSelectedPeriod] = useState('month');
@@ -150,148 +152,6 @@ export default function DashboardScreen() {
   const completionRate =
     totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-      paddingBottom: 90,
-    },
-    header: {
-      padding: 20,
-      paddingTop: 60,
-    },
-    title: {
-      fontSize: 28,
-      fontFamily: 'Inter-Bold',
-      color: colors.text,
-      marginBottom: 20,
-    },
-    periodSelector: {
-      flexDirection: 'row',
-    },
-    periodButton: {
-      backgroundColor: colors.surface,
-      borderRadius: 20,
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      marginRight: 8,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    periodButtonActive: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    periodButtonText: {
-      fontSize: 14,
-      fontFamily: 'Inter-Medium',
-      color: colors.textSecondary,
-    },
-    periodButtonTextActive: {
-      color: '#FFFFFF',
-    },
-    content: {
-      flex: 1,
-      padding: 20,
-      paddingBottom: 90,
-    },
-    statsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 24,
-    },
-    statCard: {
-      flex: 1,
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: 16,
-      marginHorizontal: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
-      alignItems: 'center',
-    },
-    statIcon: {
-      marginBottom: 8,
-    },
-    statValue: {
-      fontSize: 20,
-      fontFamily: 'Inter-Bold',
-      color: colors.text,
-      marginBottom: 4,
-    },
-    statLabel: {
-      fontSize: 12,
-      fontFamily: 'Inter-Medium',
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-    chartContainer: {
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: 16,
-      marginBottom: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    chartHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    chartTitle: {
-      fontSize: 18,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-    },
-    chartTypeSelector: {
-      flexDirection: 'row',
-      gap: 8,
-    },
-    chartTypeButton: {
-      backgroundColor: colors.background,
-      borderRadius: 8,
-      padding: 8,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    chartTypeButtonActive: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    insightsContainer: {
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    insightsTitle: {
-      fontSize: 18,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      marginBottom: 16,
-    },
-    insightItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
-    insightIcon: {
-      marginRight: 12,
-    },
-    insightText: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: colors.text,
-      flex: 1,
-    },
-    insightValue: {
-      fontSize: 14,
-      fontFamily: 'Inter-Bold',
-      color: colors.primary,
-    },
-  });
-
   const renderChart = () => {
     const chartProps = {
       width: screenWidth - 72,
@@ -377,7 +237,6 @@ export default function DashboardScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Dashboard</Text>
-
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -412,9 +271,8 @@ export default function DashboardScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <TrendingUp size={24} color={colors.success} />
-            </View>
+            <TrendingUp size={24} color={colors.success} />
+
             <Text style={[styles.statValue, { color: colors.success }]}>
               ₹{totalIncome.toFixed(0)}
             </Text>
@@ -422,9 +280,7 @@ export default function DashboardScreen() {
           </View>
 
           <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <TrendingDown size={24} color={colors.error} />
-            </View>
+            <TrendingDown size={24} color={colors.error} />
             <Text style={[styles.statValue, { color: colors.error }]}>
               ₹{totalExpense.toFixed(0)}
             </Text>
@@ -432,9 +288,7 @@ export default function DashboardScreen() {
           </View>
 
           <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <Activity size={24} color={colors.primary} />
-            </View>
+            <Activity size={24} color={colors.primary} />
             <Text style={styles.statValue}>{completionRate.toFixed(0)}%</Text>
             <Text style={styles.statLabel}>Task Completion</Text>
           </View>

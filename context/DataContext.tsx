@@ -46,6 +46,7 @@ export interface Reminder {
   repeat: "none" | "daily" | "weekly" | "monthly";
   isActive: boolean;
   profileId: string;
+  selectedDays?: number[]; // Add this line
 }
 
 interface DataContextType {

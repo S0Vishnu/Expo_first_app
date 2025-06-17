@@ -172,4 +172,70 @@ export const homeStyles = (colors: any) =>
       fontFamily: 'Inter-SemiBold',
       color: '#FFFFFF',
     },
+    timeInput: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 15,
+      marginVertical: 10,
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: 10,
+    },
+    timeInputText: {
+      marginLeft: 10,
+      color: colors.text,
+    },
+    repeatInput: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 15,
+      marginVertical: 10,
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: 10,
+    },
+    repeatInputText: {
+      marginLeft: 10,
+      color: colors.text,
+    },
+    repeatOptions: {
+      marginVertical: 10,
+    },
+    repeatOption: {
+      padding: 15,
+      marginVertical: 5,
+      borderRadius: 10,
+      backgroundColor: colors.backgroundSecondary,
+    },
+    repeatOptionActive: {
+      backgroundColor: colors.primary,
+    },
+    repeatOptionText: {
+      color: colors.text,
+    },
+    repeatOptionTextActive: {
+      color: colors.textInverse,
+    },
+    daySelection: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginVertical: 10,
+    },
+    dayButton: {
+      width: '14%',
+      aspectRatio: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 20,
+      margin: 2,
+      backgroundColor: colors.backgroundSecondary,
+    },
+    dayButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    dayButtonText: {
+      color: colors.text,
+    },
+    dayButtonTextActive: {
+      color: colors.textInverse,
+    },
   });
